@@ -5,7 +5,7 @@ go 1.21
 require (
 	github.com/bogdanfinn/fhttp v0.5.28
 	github.com/bogdanfinn/tls-client v1.7.5
-	github.com/xqdoo00o/funcaptcha v0.0.0-20240403090732-1b604d808f6c
+	github.com/xqdoo00o/funcaptcha v0.0.0-20240507071758-6c32cfc34bdc
 )
 
 require (

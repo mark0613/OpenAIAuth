@@ -28,8 +28,8 @@ github.com/quic-go/quic-go v0.43.1 h1:fLiMNfQVe9q2JvSsiXo4fXOEguXHGGl9+6gLp4RPeZ
 github.com/quic-go/quic-go v0.43.1/go.mod h1:132kz4kL3F9vxhW3CtQJLDVwcFe5wdWeJXXijhsO57M=
 github.com/tam7t/hpkp v0.0.0-20160821193359-2b70b4024ed5 h1:YqAladjX7xpA6BM04leXMWAEjS0mTZ5kUU9KRBriQJc=
 github.com/tam7t/hpkp v0.0.0-20160821193359-2b70b4024ed5/go.mod h1:2JjD2zLQYH5HO74y5+aE3remJQvl6q4Sn6aWA2wD1Ng=
-github.com/xqdoo00o/funcaptcha v0.0.0-20240403090732-1b604d808f6c h1:nj17XsSTwprsZUDXLldOUZmqz7VlHsLCeXXFOE6Q+Mk=
-github.com/xqdoo00o/funcaptcha v0.0.0-20240403090732-1b604d808f6c/go.mod h1:7aCyoW5MHDUsoooMVLqKe0F7W9HMPUvDG3bXqw++8XA=
+github.com/xqdoo00o/funcaptcha v0.0.0-20240507071758-6c32cfc34bdc h1:GA82q8G/mh5LLaBAo3UWw4zvxk/BlarGSuonyK4tz3Y=
+github.com/xqdoo00o/funcaptcha v0.0.0-20240507071758-6c32cfc34bdc/go.mod h1:MmsYdzgYjO6NQYNS8vtecBWUFWwD4TApVzMp8iwKiR0=
 golang.org/x/crypto v0.23.0 h1:dIJU/v2J8Mdglj/8rJ6UUOM3Zc9zLZxVZwwxMooUSAI=
 golang.org/x/crypto v0.23.0/go.mod h1:CKFgDieR+mRhux2Lsu27y0fO304Db0wZe70UKqHu0v8=
 golang.org/x/net v0.25.0 h1:d/OCCoBEUq33pjydKrGQhw7IlUPI2Oylr+8qLx49kac=
