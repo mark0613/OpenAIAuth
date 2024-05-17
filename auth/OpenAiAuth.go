@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -459,6 +460,9 @@ func (userLogin *UserLogin) ResetCookies() {
 }
 
 func (userLogin *UserLogin) SaveCookies() *Error {
+	if len(allCookies[userLogin.Username]) != 0 && allCookies[userLogin.Username][0].Name == "refresh_token" {
+		return nil
+	}
 	cookies := userLogin.client.GetCookieJar().Cookies(u)
 	file, err := os.OpenFile("cookies.json", os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
 	if err != nil {
@@ -481,22 +485,63 @@ func (userLogin *UserLogin) SaveCookies() *Error {
 	return nil
 }
 
+func (userLogin *UserLogin) RefreshIOSToken(refreshToken string) (string, *Error) {
+	data := map[string]interface{}{
+		"redirect_uri":  "com.openai.chat://auth0.openai.com/ios/com.openai.chat/callback",
+		"grant_type":    "refresh_token",
+		"client_id":     "pdlLIX2Y72MIl2rhLhTE9VV9bN905kBh",
+		"refresh_token": refreshToken,
+	}
+	jsonData, _ := json.Marshal(data)
+
+	req, _ := http.NewRequest(http.MethodPost, "https://auth0.openai.com/oauth/token", bytes.NewBuffer(jsonData))
+	req.Header.Set("User-Agent", UserAgent)
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := userLogin.client.Do(req)
+	if err != nil {
+		return "", NewError("refreshIOSToken", 0, err.Error())
+	}
+
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return "", NewError("refreshIOSToken", 0, "response StatusCode not OK")
+	}
+	var result map[string]interface{}
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return "", NewError("refreshIOSToken", 0, err.Error())
+	}
+	// Check if access token in data
+	if _, ok := result["access_token"]; !ok {
+		return "", NewError("refreshIOSToken", 0, "missing access token")
+	}
+	return result["access_token"].(string), nil
+}
+
 func (userLogin *UserLogin) RenewWithCookies() *Error {
 	cookies := allCookies[userLogin.Username]
 	if len(cookies) == 0 {
 		return NewError("readCookie", 0, "no cookies")
 	}
-	cookies = append(cookies, &http.Cookie{
-		Name:  "oai-dm-tgt-c-240329",
-		Value: "2024-04-02",
-	})
-	userLogin.client.GetCookieJar().SetCookies(u, cookies)
-	accessToken, statusCode, err := userLogin.GetAccessTokenInternal("")
-	if err != nil {
-		return NewError("renewToken", statusCode, err.Error())
+	if cookies[0].Name == "refresh_token" {
+		accessToken, err := userLogin.RefreshIOSToken(cookies[0].Value)
+		if err != nil {
+			return err
+		}
+		userLogin.Result.AccessToken = accessToken
+		return nil
+	} else {
+		cookies = append(cookies, &http.Cookie{
+			Name:  "oai-dm-tgt-c-240329",
+			Value: "2024-04-02",
+		})
+		userLogin.client.GetCookieJar().SetCookies(u, cookies)
+		accessToken, statusCode, err := userLogin.GetAccessTokenInternal("")
+		if err != nil {
+			return NewError("renewToken", statusCode, err.Error())
+		}
+		userLogin.Result.AccessToken = accessToken
+		return nil
 	}
-	userLogin.Result.AccessToken = accessToken
-	return nil
 }
 
 func (userLogin *UserLogin) GetAuthResult() Result {
