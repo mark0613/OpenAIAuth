@@ -528,6 +528,10 @@ func (userLogin *UserLogin) RenewWithCookies() *Error {
 			return err
 		}
 		userLogin.Result.AccessToken = accessToken
+		userLogin.client.GetCookieJar().SetCookies(u, []*http.Cookie{{
+			Name:  "oai-dm-tgt-c-240329",
+			Value: "2024-04-02",
+		}})
 		return nil
 	} else {
 		cookies = append(cookies, &http.Cookie{
