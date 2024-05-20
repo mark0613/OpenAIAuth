@@ -478,6 +478,7 @@ func (userLogin *UserLogin) SaveCookies() *Error {
 	}
 	allCookies[userLogin.Username] = filtered
 	encoder := json.NewEncoder(file)
+	encoder.SetIndent("", "  ")
 	err = encoder.Encode(allCookies)
 	if err != nil {
 		return NewError("saveCookie", 0, err.Error())
