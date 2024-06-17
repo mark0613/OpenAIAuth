@@ -49,7 +49,6 @@ const (
 	AuthorizationHeader                = "Authorization"
 	XAuthorizationHeader               = "X-Authorization"
 	ContentType                        = "application/x-www-form-urlencoded"
-	UserAgent                          = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
 	Auth0Url                           = "https://auth0.openai.com"
 	LoginPasswordUrl                   = Auth0Url + "/u/login/password?state="
 	ParseUserInfoErrorMessage          = "Failed to parse user login info."
@@ -68,6 +67,8 @@ const (
 )
 
 var u, _ = url.Parse("https://chatgpt.com")
+var UserAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+var clientProfile profiles.ClientProfile = profiles.Okhttp4Android13
 var tempDID string
 
 type UserLogin struct {
@@ -77,23 +78,27 @@ type UserLogin struct {
 	Result   Result
 }
 
-//goland:noinspection GoUnhandledErrorResult,SpellCheckingInspection
-func NewHttpClient(proxyUrl string) tls_client.HttpClient {
-	client := getHttpClient()
-
-	if proxyUrl != "" {
-		client.SetProxy(proxyUrl)
+func init() {
+	envUserAgent := os.Getenv("UA")
+	if envUserAgent != "" {
+		UserAgent = envUserAgent
 	}
-
-	return client
+	envClientProfileStr := os.Getenv("CLIENT_PROFILE")
+	if profile, ok := profiles.MappedTLSClients[envClientProfileStr]; ok {
+		clientProfile = profile
+	}
 }
 
-func getHttpClient() tls_client.HttpClient {
+//goland:noinspection GoUnhandledErrorResult,SpellCheckingInspection
+func NewHttpClient(proxyUrl string) tls_client.HttpClient {
 	client, _ := tls_client.NewHttpClient(tls_client.NewNoopLogger(), []tls_client.HttpClientOption{
 		tls_client.WithCookieJar(tls_client.NewCookieJar()),
 		tls_client.WithTimeoutSeconds(600),
-		tls_client.WithClientProfile(profiles.Okhttp4Android13),
+		tls_client.WithClientProfile(clientProfile),
 	}...)
+	if proxyUrl != "" {
+		client.SetProxy(proxyUrl)
+	}
 	return client
 }
 
