@@ -5,14 +5,14 @@ go 1.21
 require (
 	github.com/bogdanfinn/fhttp v0.5.28
 	github.com/bogdanfinn/tls-client v1.7.5
-	github.com/xqdoo00o/funcaptcha v0.0.0-20240507071758-6c32cfc34bdc
+	github.com/google/uuid v1.6.0
+	github.com/xqdoo00o/funcaptcha v0.0.0-20240701110249-093b35d56d32
 )
 
 require (
 	github.com/andybalholm/brotli v1.1.0 // indirect
 	github.com/bogdanfinn/utls v1.6.1 // indirect
 	github.com/cloudflare/circl v1.3.8 // indirect
-	github.com/google/uuid v1.6.0 // indirect
 	github.com/klauspost/compress v1.17.8 // indirect
 	github.com/quic-go/quic-go v0.43.1 // indirect
 	github.com/tam7t/hpkp v0.0.0-20160821193359-2b70b4024ed5 // indirect
