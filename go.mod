@@ -6,7 +6,6 @@ require (
 	github.com/bogdanfinn/fhttp v0.5.28
 	github.com/bogdanfinn/tls-client v1.7.5
 	github.com/google/uuid v1.6.0
-	github.com/xqdoo00o/funcaptcha v0.0.0-20240701110249-093b35d56d32
 )
 
 require (
