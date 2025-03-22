@@ -70,11 +70,17 @@ var clientProfile profiles.ClientProfile = profiles.Okhttp4Android13
 var tempDID string
 var lastURL string
 
+type OTPNotifier func(email string) error
+
+type OTPProvider func(email string) (string, error)
+
 type UserLogin struct {
 	Username string
 	Password string
 	client   tls_client.HttpClient
 	Result   Result
+	otpNotifier OTPNotifier
+	otpProvider OTPProvider
 }
 
 func init() {
@@ -113,6 +119,11 @@ func NewAuthenticator(emailAddress, password, proxy string) *UserLogin {
 		client:   NewHttpClient(proxy),
 	}
 	return userLogin
+}
+
+func (userLogin *UserLogin) SetOTPCallbacks(notifier OTPNotifier, provider OTPProvider) {
+	userLogin.otpNotifier = notifier
+	userLogin.otpProvider = provider
 }
 
 //goland:noinspection GoUnhandledErrorResult,GoErrorStringFormat
@@ -215,9 +226,26 @@ func (userLogin *UserLogin) CheckPassword(state string, username string, passwor
 			return "", resp.StatusCode, errors.New(SendOTPErrorMessage)
 		}
 	validate:
-		fmt.Print("Log-in Code of " + username + ": ")
+		if userLogin.otpNotifier != nil {
+			err := userLogin.otpNotifier(username)
+			if err != nil {
+				return "", http.StatusInternalServerError, fmt.Errorf("OTP notification failed: %v", err)
+			}
+		} else {
+			fmt.Print("Log-in Code of " + username + ": ")
+		}
+
 		var input string
-		fmt.Scanln(&input)
+		if userLogin.otpProvider != nil {
+			code, err := userLogin.otpProvider(username)
+			if err != nil {
+				return "", http.StatusInternalServerError, fmt.Errorf("Failed to get OTP: %v", err)
+			}
+			input = code
+		} else {
+			fmt.Scanln(&input)
+		}
+
 		req, err = http.NewRequest(http.MethodPost, OTPUrl, bytes.NewBuffer([]byte(`{"auth0-token":"`+auth0Token+`","auth0-state":"`+auth0State+`","code":"`+input+`"}`)))
 		req.Header.Set("Content-Type", "application/json")
 		req.Header.Set("User-Agent", UserAgent)
